@@ -1,0 +1,31 @@
+instructions: |
+  This repository has a Vite frontend and an Azure Functions API. Start Azurite first,
+  then start the API and the web app in separate run sessions. Vite proxies /api to
+  the local Functions host on port 7071.
+
+scripts:
+  - name: Prepare local settings
+    command: if (!(Test-Path "api\local.settings.json")) { Copy-Item "api\local.settings.example.json" "api\local.settings.json" }
+    triggers:
+      - session.create
+  - name: Install API dependencies
+    command: npm ci --prefix api
+    triggers:
+      - session.create
+  - name: Install web dependencies
+    command: npm ci --prefix web
+    triggers:
+      - session.create
+  - name: Start Azurite
+    command: npx --yes azurite --silent --location .\.azurite
+  - name: Start Azure Functions API
+    command: npm start --prefix api
+  - name: Run web app
+    command: npm run dev --prefix web
+  - name: Test API
+    command: npm test --prefix api
+  - name: Build web app
+    command: npm run build --prefix web
+
+server_ready_pattern: '(?i)Local:\s+(https?://\S+)'
+auto_open_in_browser: true
