@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f7f6" />
+    <title>Weather, simply | Surviving Dynamics</title>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="masthead">
+        <a class="wordmark" href="/" aria-label="Surviving Dynamics home">SURVIVING <span>DYNAMICS</span></a>
+        <span class="eyebrow">A small weather demo</span>
+      </header>
+
+      <section class="hero" aria-labelledby="heading">
+        <div class="hero-copy">
+          <p class="eyebrow">CURRENT CONDITIONS</p>
+          <h1 id="heading">Weather, <em>simply.</em></h1>
+          <p class="intro">A city is all I need. The same weather service can answer a person on a page or a Copilot Studio agent.</p>
+        </div>
+        <form id="weather-form" class="search">
+          <label for="city">Where should I look?</label>
+          <div class="search-row">
+            <input id="city" name="city" type="search" minlength="2" maxlength="100" placeholder="Try Barcelona" required />
+            <button type="submit">Check weather <span aria-hidden="true">↗</span></button>
+          </div>
+        </form>
+      </section>
+
+      <p id="status" class="status" role="status" aria-live="polite">Search for a city to see its current conditions.</p>
+      <section id="result" class="weather-card" aria-live="polite" hidden></section>
+      <footer>
+        <span>Weather data by <a href="https://open-meteo.com/" rel="noreferrer">Open-Meteo</a></span>
+        <span>One API, more than one consumer.</span>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

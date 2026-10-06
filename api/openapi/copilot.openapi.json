@@ -1,0 +1,77 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Surviving Dynamics Weather API",
+    "version": "1.0.0",
+    "description": "Look up current weather by city. Weather data is provided by Open-Meteo."
+  },
+  "host": "__APIM_HOST__",
+  "basePath": "/copilot-weather",
+  "schemes": ["https"],
+  "produces": ["application/json"],
+  "securityDefinitions": {
+    "ApiManagementKey": {
+      "type": "apiKey",
+      "name": "Ocp-Apim-Subscription-Key",
+      "in": "header"
+    }
+  },
+  "security": [{ "ApiManagementKey": [] }],
+  "paths": {
+    "/weather": {
+      "get": {
+        "operationId": "GetCurrentWeather",
+        "summary": "Get current weather for a city",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100,
+            "description": "City name, for example Paris or Redmond."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current weather",
+            "schema": { "$ref": "#/definitions/Weather" }
+          },
+          "400": { "description": "Invalid city name" },
+          "404": { "description": "City not found" },
+          "502": { "description": "Weather provider unavailable" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Weather": {
+      "type": "object",
+      "required": [
+        "city",
+        "country",
+        "temperatureC",
+        "feelsLikeC",
+        "relativeHumidityPercent",
+        "precipitationMm",
+        "windSpeedKmh",
+        "condition",
+        "observedAt",
+        "isDay"
+      ],
+      "properties": {
+        "city": { "type": "string" },
+        "country": { "type": "string" },
+        "temperatureC": { "type": "number", "format": "float" },
+        "feelsLikeC": { "type": "number", "format": "float" },
+        "relativeHumidityPercent": { "type": "integer" },
+        "precipitationMm": { "type": "number", "format": "float" },
+        "windSpeedKmh": { "type": "number", "format": "float" },
+        "condition": { "type": "string" },
+        "observedAt": { "type": "string", "description": "Local observation time in the location's time zone." },
+        "isDay": { "type": "boolean" }
+      }
+    }
+  }
+}
