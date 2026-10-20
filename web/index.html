@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f5f7f6" />
-    <title>Weather, simply | Surviving Dynamics</title>
+    <title>Weather plans | Surviving Dynamics</title>
   </head>
   <body>
     <main class="shell">
@@ -15,24 +15,33 @@
 
       <section class="hero" aria-labelledby="heading">
         <div class="hero-copy">
-          <p class="eyebrow">CURRENT CONDITIONS</p>
-          <h1 id="heading">Weather, <em>simply.</em></h1>
-          <p class="intro">A city is all I need. The same weather service can answer a person on a page or a Copilot Studio agent.</p>
+          <p class="eyebrow">A SMALL OUTDOOR PLAN</p>
+          <h1 id="heading">Go out, <em>or not?</em></h1>
+          <p class="intro">Look up a place, check its forecast, or ask for a transparent running recommendation. The same tools are available to the web and to an agent.</p>
         </div>
         <form id="weather-form" class="search">
-          <label for="city">Where should I look?</label>
+          <label for="city">City</label>
           <div class="search-row">
             <input id="city" name="city" type="search" minlength="2" maxlength="100" placeholder="Try Barcelona" required />
-            <button type="submit">Check weather <span aria-hidden="true">↗</span></button>
+          </div>
+          <input id="country" name="country" type="hidden" />
+          <input id="admin1" name="admin1" type="hidden" />
+          <label class="date-label" for="date">Forecast date</label>
+          <input id="date" name="date" type="date" />
+          <div class="actions">
+            <button type="submit" value="running-assessment">Should I run?</button>
+            <button type="submit" value="forecast" class="secondary">See forecast</button>
+            <button type="submit" value="weather" class="secondary">Current weather</button>
+            <button type="submit" value="locations" class="text-button">Find city matches</button>
           </div>
         </form>
       </section>
 
-      <p id="status" class="status" role="status" aria-live="polite">Search for a city to see its current conditions.</p>
+      <p id="status" class="status" role="status" aria-live="polite">Choose an action to explore the weather tools.</p>
       <section id="result" class="weather-card" aria-live="polite" hidden></section>
       <footer>
         <span>Weather data by <a href="https://open-meteo.com/" rel="noreferrer">Open-Meteo</a></span>
-        <span>One API, more than one consumer.</span>
+        <span>One set of tools. Web and MCP.</span>
       </footer>
     </main>
     <script type="module" src="/src/main.ts"></script>
