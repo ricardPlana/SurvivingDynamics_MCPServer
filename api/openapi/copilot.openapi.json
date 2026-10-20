@@ -3,7 +3,7 @@
   "info": {
     "title": "Surviving Dynamics Weather API",
     "version": "1.0.0",
-    "description": "Look up current weather by city. Weather data is provided by Open-Meteo."
+    "description": "Find locations, get a daily forecast, and evaluate a simple running plan using Open-Meteo data."
   },
   "host": "__APIM_HOST__",
   "basePath": "/copilot-weather",
@@ -23,43 +23,118 @@
         "operationId": "GetCurrentWeather",
         "summary": "Get current weather for a city",
         "parameters": [
+          { "$ref": "#/parameters/city" },
+          { "$ref": "#/parameters/country" },
+          { "$ref": "#/parameters/admin1" }
+        ],
+        "responses": {
+          "200": { "description": "Current local conditions", "schema": { "$ref": "#/definitions/Weather" } },
+          "400": { "description": "Invalid city" },
+          "404": { "description": "No city found" },
+          "409": { "description": "City name is ambiguous" },
+          "502": { "description": "Weather provider unavailable" }
+        }
+      }
+    },
+    "/locations": {
+      "get": {
+        "operationId": "SearchLocations",
+        "summary": "Find matching cities and regions",
+        "parameters": [
           {
-            "name": "city",
+            "name": "query",
             "in": "query",
             "required": true,
             "type": "string",
             "minLength": 2,
             "maxLength": 100,
-            "description": "City name, for example Paris or Redmond."
+            "description": "City or place name. Returns up to ten matches with region, country, and coordinates."
           }
         ],
         "responses": {
-          "200": {
-            "description": "Current weather",
-            "schema": { "$ref": "#/definitions/Weather" }
-          },
-          "400": { "description": "Invalid city name" },
-          "404": { "description": "City not found" },
+          "200": { "description": "Matching locations", "schema": { "$ref": "#/definitions/LocationSearchResult" } },
+          "400": { "description": "Invalid search query" },
+          "502": { "description": "Location provider unavailable" }
+        }
+      }
+    },
+    "/forecast": {
+      "get": {
+        "operationId": "GetDailyForecast",
+        "summary": "Get the daily forecast for a city",
+        "parameters": [
+          { "$ref": "#/parameters/city" },
+          { "$ref": "#/parameters/country" },
+          { "$ref": "#/parameters/admin1" },
+          { "$ref": "#/parameters/date" }
+        ],
+        "responses": {
+          "200": { "description": "Daily forecast", "schema": { "$ref": "#/definitions/DailyForecast" } },
+          "400": { "description": "Invalid city or date" },
+          "404": { "description": "No city found" },
+          "409": { "description": "City name is ambiguous; specify country or region" },
+          "502": { "description": "Weather provider unavailable" }
+        }
+      }
+    },
+    "/running-assessment": {
+      "get": {
+        "operationId": "AssessRunningConditions",
+        "summary": "Evaluate whether forecast conditions meet the demo running criteria",
+        "description": "Applies transparent demo thresholds. This is not medical advice or an official safety warning.",
+        "parameters": [
+          { "$ref": "#/parameters/city" },
+          { "$ref": "#/parameters/country" },
+          { "$ref": "#/parameters/admin1" },
+          { "$ref": "#/parameters/date" }
+        ],
+        "responses": {
+          "200": { "description": "Running conditions assessment", "schema": { "$ref": "#/definitions/RunningAssessment" } },
+          "400": { "description": "Invalid city or date" },
+          "404": { "description": "No city found" },
+          "409": { "description": "City name is ambiguous; specify country or region" },
           "502": { "description": "Weather provider unavailable" }
         }
       }
     }
   },
+  "parameters": {
+    "city": {
+      "name": "city",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 100,
+      "description": "City name, for example Barcelona."
+    },
+    "country": {
+      "name": "country",
+      "in": "query",
+      "required": false,
+      "type": "string",
+      "description": "Optional country name or ISO country code to disambiguate the city."
+    },
+    "admin1": {
+      "name": "admin1",
+      "in": "query",
+      "required": false,
+      "type": "string",
+      "description": "Optional first-level region to disambiguate the city."
+    },
+    "date": {
+      "name": "date",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "format": "date",
+      "description": "Local calendar date, today through the next six days."
+    }
+  },
   "definitions": {
     "Weather": {
       "type": "object",
-      "required": [
-        "city",
-        "country",
-        "temperatureC",
-        "feelsLikeC",
-        "relativeHumidityPercent",
-        "precipitationMm",
-        "windSpeedKmh",
-        "condition",
-        "observedAt",
-        "isDay"
-      ],
+      "required": ["city", "country", "temperatureC", "feelsLikeC", "relativeHumidityPercent", "precipitationMm", "windSpeedKmh", "condition", "observedAt", "isDay"],
       "properties": {
         "city": { "type": "string" },
         "country": { "type": "string" },
@@ -71,6 +146,64 @@
         "condition": { "type": "string" },
         "observedAt": { "type": "string", "description": "Local observation time in the location's time zone." },
         "isDay": { "type": "boolean" }
+      }
+    },
+    "CityLocation": {
+      "type": "object",
+      "required": ["name", "admin1", "country", "countryCode", "latitude", "longitude", "timezone"],
+      "properties": {
+        "name": { "type": "string" },
+        "admin1": { "type": "string" },
+        "country": { "type": "string" },
+        "countryCode": { "type": "string" },
+        "latitude": { "type": "number", "format": "float" },
+        "longitude": { "type": "number", "format": "float" },
+        "timezone": { "type": "string" }
+      }
+    },
+    "LocationSearchResult": {
+      "type": "object",
+      "required": ["locations"],
+      "properties": {
+        "locations": { "type": "array", "items": { "$ref": "#/definitions/CityLocation" } }
+      }
+    },
+    "DailyForecast": {
+      "type": "object",
+      "required": ["city", "country", "date", "minimumTemperatureC", "maximumTemperatureC", "precipitationMm", "maximumWindSpeedKmh", "condition"],
+      "properties": {
+        "city": { "type": "string" },
+        "country": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "minimumTemperatureC": { "type": "number", "format": "float" },
+        "maximumTemperatureC": { "type": "number", "format": "float" },
+        "precipitationMm": { "type": "number", "format": "float" },
+        "maximumWindSpeedKmh": { "type": "number", "format": "float" },
+        "condition": { "type": "string" }
+      }
+    },
+    "RunningAssessment": {
+      "type": "object",
+      "required": ["activity", "recommendation", "city", "country", "date", "reasons", "thresholds", "forecast", "disclaimer"],
+      "properties": {
+        "activity": { "type": "string", "enum": ["running"] },
+        "recommendation": { "type": "string", "enum": ["recommended", "not_recommended"] },
+        "city": { "type": "string" },
+        "country": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "reasons": { "type": "array", "items": { "type": "string" } },
+        "thresholds": {
+          "type": "object",
+          "required": ["minimumTemperatureC", "maximumTemperatureC", "maximumPrecipitationMm", "maximumWindSpeedKmh"],
+          "properties": {
+            "minimumTemperatureC": { "type": "number" },
+            "maximumTemperatureC": { "type": "number" },
+            "maximumPrecipitationMm": { "type": "number" },
+            "maximumWindSpeedKmh": { "type": "number" }
+          }
+        },
+        "forecast": { "$ref": "#/definitions/DailyForecast" },
+        "disclaimer": { "type": "string" }
       }
     }
   }
