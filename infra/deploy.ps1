@@ -39,6 +39,25 @@ $functionAppName = $baseDeployment.functionAppName.value
 $staticWebAppName = $baseDeployment.staticWebAppName.value
 $staticWebAppHostName = $baseDeployment.staticWebAppHostName.value
 
+$localSettingsPath = Join-Path $repoRoot "api\local.settings.json"
+if (-not (Test-Path -LiteralPath $localSettingsPath)) {
+  Copy-Item (Join-Path $repoRoot "api\local.settings.example.json") $localSettingsPath
+}
+try {
+  $localSettings = Get-Content -LiteralPath $localSettingsPath -Raw | ConvertFrom-Json
+}
+catch {
+  throw "Could not read api\local.settings.json: $($_.Exception.Message)"
+}
+if (-not $localSettings.Values) {
+  $localSettings | Add-Member -NotePropertyName Values -NotePropertyValue ([pscustomobject]@{}) -Force
+}
+if ($localSettings.Values.FUNCTIONS_WORKER_RUNTIME -ne "node") {
+  $localSettings.Values | Add-Member -NotePropertyName FUNCTIONS_WORKER_RUNTIME -NotePropertyValue "node" -Force
+  $localSettingsJson = $localSettings | ConvertTo-Json -Depth 10
+  [System.IO.File]::WriteAllText($localSettingsPath, $localSettingsJson, [System.Text.UTF8Encoding]::new($false))
+}
+
 Push-Location (Join-Path $repoRoot "api")
 try {
   npm ci
