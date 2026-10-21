@@ -2,6 +2,21 @@
 
 A small full-stack Azure sample for one useful question: **Should I go running in Barcelona tomorrow?** A Static Web App and a Copilot Studio MCP client use the same TypeScript Azure Function through Azure API Management. The Function resolves city names, retrieves a daily forecast from Open-Meteo, and applies transparent demo thresholds.
 
+## Start here / Empieza aqui
+
+**[Guia completa en espanol: de REST a MCP y Copilot Studio](docs/guia-completa.md)**. Companion guide for the blog: architecture, local setup, deployment, manual APIM changes, agent instructions, end-to-end validation, lessons learned, and ideas to extend the sample.
+
+| Your goal | Read |
+| --- | --- |
+| Understand and reproduce the full example in Spanish | [Complete walkthrough](docs/guia-completa.md) |
+| Run only the API and web locally | [Local setup](#run-and-test-locally) |
+| Deploy the base infrastructure | [Azure deployment](#deploy-to-azure) |
+| Configure MCP, authentication, and query templates | [Azure operational reference](docs/azure-configuration.md) |
+
+This is a self-hosted sample, not a shared hosted service. Local API/web execution does not need an Azure subscription; cloud deployment and Copilot Studio require your own environments and can incur costs. **The deployment script does not create the MCP server or agent, and does not apply the manual APIM URL-template workaround.**
+
+## Architecture
+
 ```mermaid
 flowchart LR
   Browser[Static Web App] -->|REST| APIM[API Management]
@@ -41,6 +56,7 @@ The running assessment recommends a run only when the full-day forecast is withi
 | `infra/main.bicep` | Storage, Flex Consumption Function App, and Static Web App |
 | `infra/apim.bicep` | APIM service, public and subscription-protected REST APIs, and policies |
 | `infra/deploy.ps1` | End-to-end PowerShell deployment |
+| `docs/guia-completa.md` | Spanish blog companion: full walkthrough, lessons, and extension ideas |
 | `docs/azure-configuration.md` | Portal setup and IaC mapping |
 
 ## Run and test locally
@@ -55,7 +71,9 @@ In a second terminal, start the Function:
 
 ```powershell
 Set-Location api
-Copy-Item local.settings.example.json local.settings.json
+if (!(Test-Path local.settings.json)) {
+  Copy-Item local.settings.example.json local.settings.json
+}
 npm ci
 npm test
 npm start
@@ -75,6 +93,8 @@ Open the Vite URL. Search for city matches first if a name may be ambiguous, the
 
 Run the API tests with `npm test` in `api`; they stub Open-Meteo and don't call external services. Run `npm run check` and `npm run build` in `web`.
 
+`npm test` compiles the API. After changing API TypeScript, rebuild with `npm run build` in `api` and restart the host as needed; no compiler watch process is configured.
+
 ## Deploy to Azure
 
 The deployment requires an Azure subscription with permission to create a resource group, Azure Functions resources, role assignments, Static Web Apps, and API Management. Install Azure CLI, Bicep (`az bicep install`), the latest Azure Functions Core Tools v4, and Node.js 22, then sign in with `az login`.
@@ -91,8 +111,8 @@ The script deploys the Function App and Static Web App foundation, tests and pub
 
 After deployment:
 
-1. In the Azure portal, open the API Management instance. Under **APIs → MCP Servers**, choose **Create MCP server → Expose an API as an MCP server**.
-2. Configure the REST operation URL templates using the [tested MCP workaround](docs/azure-configuration.md#configure-rest-operation-templates-for-mcp). This avoids malformed optional query parameters observed in APIM's generated MCP calls. It makes country and region required on the affected Copilot REST operations, without changing the public API or Function.
+1. Configure the REST operation URL templates using the [tested MCP workaround](docs/azure-configuration.md#configure-rest-operation-templates-for-mcp). This avoids malformed optional query parameters observed in APIM's generated MCP calls. It makes country and region required on the affected Copilot REST operations, without changing the public API or Function.
+2. In the Azure portal, open the API Management instance. Under **APIs → MCP Servers**, choose **Create MCP server → Expose an API as an MCP server**.
 3. Select **Weather for Copilot Studio**. Expose `SearchLocations`, `GetDailyForecast`, and `AssessRunningConditions` as tools; optionally include `GetCurrentWeather`. Give the server a clear name and create it. For subscription-based access, associate both the MCP server and its source REST API with the same protected APIM product and enable **Subscription required** on both.
 4. Copy the generated **Server URL** from the MCP server. It is not the REST URL; it ends with `/mcp`.
 5. In Copilot Studio, open the agent's tools and add a new **Model Context Protocol** tool. Paste the Server URL and configure the matching authentication. For an APIM subscription, use API-key authentication in the `Ocp-Apim-Subscription-Key` header and an active subscription to that product, then create the connection and add the server to the agent.
@@ -117,6 +137,13 @@ APIM exposes REST operations as MCP tools; it doesn't turn the Function source c
 - **Open-Meteo:** its free API is limited to non-commercial use and requires attribution. Review the provider's current [terms](https://open-meteo.com/en/terms) before using it; select an appropriately licensed plan/provider for commercial use.
 - **Demo, not production:** APIM Developer is not a production tier with an SLA. IP throttling is not authentication. Before production, add an identity model appropriate for each caller, stronger abuse controls, monitoring/alerting, and a commercially licensed weather source. The running thresholds are examples, not safety guidance.
 - **Tenant-specific setup:** the manual MCP URL-template workaround was verified with real tool calls and Copilot Studio. The deployment script does not automate those portal changes; verify them after each deployment or API import.
+- **Date boundary:** the API currently validates the seven-day range against the server's UTC date, while forecasts use the location's time zone. Local-day boundaries can differ near midnight.
+
+## What this example teaches
+
+Keep business decisions in an API, expose focused operations as tools, and let the agent compose calls and explain returned evidence. The most important integration lesson was to distinguish successful MCP discovery from a successful tool execution: HTTP `200` and `isError: false` did not always mean the underlying REST operation succeeded.
+
+The [complete guide](docs/guia-completa.md) records the problems encountered and their verified fixes, along with non-implemented extension ideas such as additional activities, identity-based access, observability, and automated MCP integration tests. The repository includes runnable source and deployment assets, not a finished production platform or raw tenant screenshots.
 
 ## Before publishing a fork or screenshots
 
