@@ -69,7 +69,7 @@ The Function and public web API still support optional qualifiers. The checked-i
 
 ## Connect the MCP server to Copilot Studio
 
-1. Open the agent in Copilot Studio and go to **Tools → Add a tool → New tool → Model Context Protocol**.
+1. Open the agent in Copilot Studio and go to **Tools → Add a tool → Add → Model Context Protocol (MCP)**. Labels can vary by UI language and version.
 2. Enter the MCP server name, a concise description, and the Server URL copied from APIM.
 3. Configure the authentication used by the APIM MCP server. For an APIM subscription key, choose API key authentication with **Header** type and header name `Ocp-Apim-Subscription-Key`; use an active subscription whose product includes both the MCP server and the source REST API. Enter the key only in the connection's credential field, never in agent instructions or the server URL.
 4. Create or select the connection and add the server to the agent.

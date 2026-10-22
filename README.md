@@ -2,12 +2,13 @@
 
 A small full-stack Azure sample for one useful question: **Should I go running in Barcelona tomorrow?** A Static Web App and a Copilot Studio MCP client use the same TypeScript Azure Function through Azure API Management. The Function resolves city names, retrieves a daily forecast from Open-Meteo, and applies transparent demo thresholds.
 
-## Start here / Empieza aqui
+## Start here / Empieza aquí
 
-**[Guia completa en espanol: de REST a MCP y Copilot Studio](docs/guia-completa.md)**. Companion guide for the blog: architecture, local setup, deployment, manual APIM changes, agent instructions, end-to-end validation, lessons learned, and ideas to extend the sample.
+**[Guía completa en español: de REST a MCP y Copilot Studio](docs/guia-completa.md)**. Companion guide for the blog post [Turn Your Azure Function into MCP Tools for Copilot Studio with API Management](https://www.survivingdynamics.com/en/blog/azure-function-as-mcp-server-with-api-management-and-copilot-studio/) ([en español](https://www.survivingdynamics.com/es/blog/azure-function-como-servidor-mcp-con-api-management-y-copilot-studio/)), which walks through the setup with screenshots. The guide covers architecture, local setup, deployment, manual APIM changes, agent instructions, end-to-end validation, lessons learned, and ideas to extend the sample.
 
 | Your goal | Read |
 | --- | --- |
+| See the whole process with screenshots | [Blog post (EN)](https://www.survivingdynamics.com/en/blog/azure-function-as-mcp-server-with-api-management-and-copilot-studio/) · [Artículo (ES)](https://www.survivingdynamics.com/es/blog/azure-function-como-servidor-mcp-con-api-management-y-copilot-studio/) |
 | Understand and reproduce the full example in Spanish | [Complete walkthrough](docs/guia-completa.md) |
 | Run only the API and web locally | [Local setup](#run-and-test-locally) |
 | Deploy the base infrastructure | [Azure deployment](#deploy-to-azure) |

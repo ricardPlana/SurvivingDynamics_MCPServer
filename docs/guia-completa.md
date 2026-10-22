@@ -1,6 +1,6 @@
 # De una API REST a herramientas MCP con Azure y Copilot Studio
 
-Esta guía acompaña al ejemplo del blog y permite reproducirlo en tu propia suscripción. La pregunta de partida es sencilla: **"¿Me conviene salir a correr mañana en Barcelona?"** Lo interesante no es generar una respuesta convincente, sino conseguir que el agente use datos reales y una regla de negocio verificable.
+Esta guía acompaña al [artículo del blog](https://www.survivingdynamics.com/es/blog/azure-function-como-servidor-mcp-con-api-management-y-copilot-studio/), donde está el recorrido con capturas, y permite reproducirlo en tu propia suscripción. La pregunta de partida es sencilla: **"¿Me conviene salir a correr mañana en Barcelona?"** Lo interesante no es generar una respuesta convincente, sino conseguir que el agente use datos reales y una regla de negocio verificable.
 
 El repositorio contiene la API, la web, los contratos OpenAPI, las pruebas y la infraestructura. No incluye credenciales, capturas del tenant ni un servicio compartido que debas usar. Necesitas desplegar tus propios recursos; los nombres de las herramientas y algunas etiquetas del portal pueden variar.
 
@@ -93,7 +93,7 @@ Necesitas Azure CLI, Bicep, Core Tools y permisos para crear recursos y asignar 
 az login
 az account set --subscription "<tu-suscripcion>"
 az bicep install
-.\infra\deploy.ps1 -ResourceGroupName rg-weather-blog -Location westeurope -PublisherEmail you@example.com
+.\infra\deploy.ps1 -ResourceGroupName rg-sd-weather-demo -Location westeurope -PublisherEmail you@example.com
 ```
 
 Sustituye el correo por tu contacto de publicador. Usa un grupo dedicado. El despliegue crea recursos facturables; APIM Developer no tiene SLA de producción y puede tardar en aprovisionarse.
@@ -137,12 +137,12 @@ Esto documenta un comportamiento observado, no una afirmación de que todas las 
 
 En **APIM > MCP Servers > Create MCP server > Expose an API as an MCP server**:
 
-1. Selecciona **Weather for Copilot Studio** y sus cuatro operaciones.
+1. Selecciona **Weather for Copilot Studio** y las operaciones de búsqueda de localidades, previsión diaria y evaluación para correr. La de tiempo actual es opcional.
 2. Asigna un nombre, por ejemplo `weather-planning-mcp`, y una descripción del propósito.
 3. Para proteger el servicio, incluye el MCP y la API REST origen en el mismo producto protegido. Activa **Subscription required** en ambos y crea o utiliza una suscripción activa a ese producto.
 4. Copia la **Server URL** generada por APIM. Termina en `/mcp`; no es la URL base de la API REST.
 
-En **Copilot Studio > Tools > Add a tool > Model Context Protocol**:
+En **Copilot Studio > Herramientas > Agregar una herramienta > Agregar > Model Context Protocol (MCP)** (las etiquetas pueden variar según el idioma y la versión):
 
 1. Introduce nombre, descripción y la Server URL.
 2. Selecciona **Clave API**, ubicación **Encabezado**, nombre `Ocp-Apim-Subscription-Key`.
@@ -236,7 +236,6 @@ Prueba también un nombre ambiguo, una fecha fuera del rango y la persistencia d
 
 | Problema | Qué hicimos | Idea reutilizable |
 | --- | --- | --- |
-| La app no tenía scripts para ejecutarse desde Copilot | Incorporamos `.github/github-app.yml` con preparación y sesiones separadas | Documentar también cómo arrancar el proyecto |
 | Core Tools no identificaba correctamente el worker | Fijamos `FUNCTIONS_WORKER_RUNTIME=node` solo en configuración local | Flex define el runtime en `functionAppConfig.runtime`, no con ese app setting |
 | Publicación Flex y roles de almacenamiento | Configuramos almacenamiento de paquetes, identidad administrada y reintentos limitados | Las asignaciones pueden tardar en propagarse |
 | El botón de running apuntaba a una ruta inexistente | Alineamos la acción con `running-assessment` | Un contrato correcto no garantiza que la UI lo use |
@@ -248,7 +247,7 @@ Prueba también un nombre ambiguo, una fecha fuera del rango y la persistencia d
 
 Los mensajes genéricos de alta de servidor en Copilot Studio no permitieron demostrar una causa única. No asumimos que cambiar el nombre o recrear la conexión los resuelva: conviene revisar la respuesta de red y el diagnóstico del entorno sin compartir tokens.
 
-## 10. Ideas para el blog y para ampliar el ejemplo
+## 10. Ideas para ampliar el ejemplo
 
 El hilo conductor puede ser: **API existente > contrato explícito > gateway > herramientas > agente > validación real**. No hace falta reescribir la lógica como un servidor MCP propio para explorar este patrón.
 
@@ -260,7 +259,7 @@ El hilo conductor puede ser: **API existente > contrato explícito > gateway > h
 | Diagnóstico por capas | Separa protocolo, autenticación y negocio | Pruebas automatizadas de MCP y alertas |
 | Infraestructura reproducible | Bicep y script para el despliegue base | Automatizar MCP y workaround cuando sea viable |
 
-Para ilustrarlo, son útiles capturas de la arquitectura, las plantillas REST corregidas, la creación de MCP, el encabezado configurado sin valor visible, las instrucciones y una ejecución final con trazas. No están incluidas en este repositorio: sanea correos, identificadores, claves y hostnames antes de publicarlas.
+Las capturas del proceso completo (creación del servidor MCP en APIM, suscripción, conexión en Copilot Studio, instrucciones y una ejecución real) están en el [artículo del blog](https://www.survivingdynamics.com/es/blog/azure-function-como-servidor-mcp-con-api-management-y-copilot-studio/). Si publicas las tuyas, sanea antes correos, identificadores, claves y hostnames.
 
 ## 11. Límites, costes y cierre
 
@@ -271,13 +270,14 @@ No hay cobertura de alertas oficiales, salud, calidad del aire, rutas ni previsi
 Al terminar, verifica que el grupo contiene únicamente recursos de este ejemplo. El siguiente comando **elimina todos los recursos del grupo indicado**:
 
 ```powershell
-az group delete --name rg-weather-blog
+az group delete --name rg-sd-weather-demo
 ```
 
 Espera a que finalice y comprueba la eliminación en Azure. Elimina también conexiones o herramientas obsoletas en Copilot Studio; borrar Azure no las retira automáticamente. Consulta la [checklist de publicación](azure-configuration.md#publication-checklist) antes de compartir tu fork o sus capturas.
 
 ## Referencias
 
+- [Artículo del blog con capturas](https://www.survivingdynamics.com/es/blog/azure-function-como-servidor-mcp-con-api-management-y-copilot-studio/)
 - [README y mapa del repositorio](../README.md)
 - [Referencia operativa de Azure y troubleshooting](azure-configuration.md)
 - [Exponer una API REST como MCP en APIM](https://learn.microsoft.com/azure/api-management/export-rest-mcp-server)
