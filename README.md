@@ -4,7 +4,7 @@ A small full-stack Azure sample for one useful question: **Should I go running i
 
 ## Start here / Empieza aquí
 
-**[Guía completa en español: de REST a MCP y Copilot Studio](docs/guia-completa.md)**. Companion guide for the blog post [Turn Your Azure Function into MCP Tools for Copilot Studio with API Management](https://www.survivingdynamics.com/en/blog/azure-function-as-mcp-server-with-api-management-and-copilot-studio/) ([en español](https://www.survivingdynamics.com/es/blog/azure-function-como-servidor-mcp-con-api-management-y-copilot-studio/)), which walks through the setup with screenshots. The guide covers architecture, local setup, deployment, manual APIM changes, agent instructions, end-to-end validation, lessons learned, and ideas to extend the sample.
+**[Guía completa en español: de REST a MCP y Copilot Studio](docs/guia-completa.md)**. Companion guide for the blog post [From Azure Function to MCP Server for Copilot Studio](https://www.survivingdynamics.com/en/blog/azure-function-as-mcp-server-with-api-management-and-copilot-studio/) ([en español](https://www.survivingdynamics.com/es/blog/azure-function-como-servidor-mcp-con-api-management-y-copilot-studio/)), which walks through the setup with screenshots. The guide covers architecture, local setup, deployment, manual APIM changes, agent instructions, end-to-end validation, lessons learned, and ideas to extend the sample.
 
 | Your goal | Read |
 | --- | --- |
